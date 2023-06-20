@@ -11,7 +11,7 @@ This list is aimed to give a baseline for code quality agreements and to make co
         > *pieces of code that are never executed at run-time or that are executed but whose result is never used and does not affect the rest of the codebase*
     4. Reduce the number of decision structures 
         > *see Decortator Pattern or Strategy Pattern*  
-    5. Keep an eye on the cyclomatic complexity
+    5. Keep an eye on the **cyclomatic complexity**
         > For most routines, a cyclomatic complexity below 4 is considered good; a cyclomatic complexity between 5 and 7 is considered medium complexity, between 8 and 10 is high complexity, and above that is extreme complexity.  
 
         see [Example](https://brandonsavage.net/code-complexity-and-clean-code/#:~:text=For%20most%20routines%2C%20a%20cyclomatic,above%20that%20is%20extreme%20complexity.), read [more](https://www.ibm.com/docs/en/raa/6.1?topic=metrics-cyclomatic-complexity)
@@ -82,11 +82,66 @@ This list is aimed to give a baseline for code quality agreements and to make co
 
 <hr>
 
-5. **Data objects must be declared at the smallest possible level of scope.**
+5. **Data objects must be declared at the smallest possible level of scope.**  
 
+    - limit visibility and lifespan of variables to only the necessary parts
+    - improves code organization, reduces potential naming conflicts  
+    - makes it easier to reason about behavior and state of data objects  
+
+    > Explicitly declaring scalar variables in the smallest scope possible simplifies data flow analysis, which may be difficult, time-consuming and error-prone especially in big code bases that contain many function calls spread along multiple files. It makes it easier for the compiler to track the usage of variables. By minimizing the number of statements where the value can be modified, it is easier to diagnose why a variable is taking an erroneous value. Additionally, it reduces the likelihood of reusing variables for multiple, incompatible purposes, making code testing significantly easier.   
+    
+    [see](https://www.codee.com/knowledge/pwr002/   )
+
+    ```kotlin
+    fun processData(input: String): Unit {
+        val data: List<Int> = parseData(input)
+        
+        // Perform operations on the data object
+        // ...
+
+        // Declare a nested data object with limited scope
+        if (data.isNotEmpty()) {
+            val subData: List<Int> = data.subList(1, data.size)
+            
+            // Perform operations on the subData object
+            // ...
+        }
+
+        // More code...
+    }
+
+    fun parseData(input: String): List<Int> {
+        // Parse the input and return the data object
+        // ...
+    }
+    ```
 <hr>
 
-6. **The return value of non-void functions must be checked by each calling function, and the validity of parameters must be checked inside each function.**
+6. **The return value of non-void function should be used.**
+  
+    It is possible to call a non-void function without using its return value afterward. There could be an error behind such behavior.
+
+    Values returned by non-void functions must always be used.
+
+    ```kotlin
+
+    fun foo(x: Int): Int = x + x
+
+    // BAD
+    fun bar(int x): Unit {
+     foo(x); // return value not used
+    }
+
+    // BETTER
+    fun bar(int x): Unit {
+     foo(x) as Unit 
+     // explicit cast to Void, so it is clear that this was intentionally
+    }
+    ```
+
+
+
+
 
 <hr>
 
@@ -96,6 +151,10 @@ This list is aimed to give a baseline for code quality agreements and to make co
     1. Fail loudly
     2. Fail fast
     3. Use a pedantic Linter (language specific)
+<hr>
+
+8. **Tests Tests Tests** 
+
 <hr>
 
 - Use a language specific linter
